@@ -1,6 +1,5 @@
 <?xml version="1.0" encoding="utf-8"?>
-<manifest xmlns:android="http://schemas.android.com/apk/res/android"
-    package="com.family.tracker.parent">
+<manifest xmlns:android="http://schemas.android.com/apk/res/android">
 
     <uses-permission android:name="android.permission.INTERNET"/>
     <uses-permission android:name="android.permission.ACCESS_WIFI_STATE"/>
@@ -10,7 +9,6 @@
     <uses-permission android:name="android.permission.READ_SMS"/>
     <uses-permission android:name="android.permission.FOREGROUND_SERVICE"/>
     <uses-permission android:name="android.permission.FOREGROUND_SERVICE_DATA_SYNC"/>
-    <uses-permission android:name="android.permission.FOREGROUND_SERVICE_MEDIA_PROCESSING"/>
     <uses-permission android:name="android.permission.SYSTEM_ALERT_WINDOW"/>
 
     <application
@@ -35,14 +33,19 @@
             </intent-filter>
         </receiver>
 
-        <!-- ✅ Service avec type OBLIGATOIRE pour Android 14 -->
+        <!-- ✅ Service avec types VALIDES uniquement -->
         <service
             android:name=".PhotoHttpServerService"
-            android:foregroundServiceType="dataSync|mediaProcessing"
+            android:foregroundServiceType="dataSync"
             android:exported="false"/>
 
         <service
             android:name=".FloatingMapService"
-            android:exported="false"/>
+            android:foregroundServiceType="specialUse"
+            android:exported="false">
+            <property
+                android:name="android.app.PROPERTY_SPECIAL_USE_FGS_SUBTYPE"
+                android:value="floating_map_overlay"/>
+        </service>
     </application>
 </manifest>
