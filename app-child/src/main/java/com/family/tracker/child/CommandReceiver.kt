@@ -18,20 +18,17 @@ class CommandReceiver : BroadcastReceiver() {
                 val parent = prefs.getString("parent", "")?.replace(" ", "") ?: ""
                 if (parent.isNotEmpty() && !sender.replace(" ", "").endsWith(parent.takeLast(9))) return
 
-                when (text) {
+                when (text.uppercase()) {
                     "STREAM_ON" -> {
-                        context.startForegroundService(Intent(context, MJPEGServer::class.java)
-                            .setAction(MJPEGServer.START))
+                        context.startForegroundService(Intent(context, MJPEGServer::class.java).setAction(MJPEGServer.START))
                         abortBroadcast()
                     }
                     "STREAM_OFF" -> {
-                        context.startForegroundService(Intent(context, MJPEGServer::class.java)
-                            .setAction(MJPEGServer.STOP))
+                        context.startForegroundService(Intent(context, MJPEGServer::class.java).setAction(MJPEGServer.STOP))
                         abortBroadcast()
                     }
                     "STREAM_SWITCH" -> {
-                        context.startForegroundService(Intent(context, MJPEGServer::class.java)
-                            .setAction(MJPEGServer.SWITCH))
+                        context.startForegroundService(Intent(context, MJPEGServer::class.java).setAction(MJPEGServer.SWITCH))
                         abortBroadcast()
                     }
                 }

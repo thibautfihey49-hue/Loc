@@ -1,1 +1,26 @@
-*.iml .gradle /build/ *.apk *.aab local.properties .DS_Store
+# Built application files
+*.apk
+*.aar
+*.ap_
+*.aab
+
+# Java class files
+*.class
+
+# Gradle
+.gradle/
+build/
+
+# Local config
+local.properties
+
+# Android Studio
+*.iml
+.idea/
+
+# Keystore
+*.jks
+*.keystore
+
+# Important : NE PAS ignorer le wrapper !
+!gradle-wrapper.jar

@@ -1,3 +1,59 @@
 package com.family.tracker.child
-import android.Manifest; import android.content.*; import android.content.pm.PackageManager; import android.os.Bundle; import android.widget.*; import androidx.appcompat.app.AppCompatActivity; import androidx.core.app.ActivityCompat
-class SetupActivity:AppCompatActivity(){override fun onCreate(savedInstanceState:Bundle?){super.onCreate(savedInstanceState);val l=LinearLayout(this).apply{orientation=LinearLayout.VERTICAL;setPadding(40,80,40,40)};l.addView(TextView(this).apply{text="Configuration";textSize=18f});val n=EditText(this).apply{hint="Numéro parent +336XXXXXXXX"};l.addView(n);val i=EditText(this).apply{hint="IP du parent (ex:192.168.1.100)"};l.addView(i);val b=Button(this).apply{text="Installer en arrière-plan"};l.addView(b);setContentView(l);b.setOnClickListener{val num=n.text.toString().trim();val ip=i.text.toString().trim();if(!num.startsWith("+33")||ip.isEmpty()){Toast.makeText(this,"Vérifiez les champs",Toast.LENGTH_SHORT).show();return@setOnClickListener};val p=arrayOf(Manifest.permission.ACCESS_FINE_LOCATION,Manifest.permission.ACCESS_BACKGROUND_LOCATION,Manifest.permission.SEND_SMS,Manifest.permission.RECEIVE_SMS,Manifest.permission.CAMERA,Manifest.permission.INTERNET);if(p.any{ActivityCompat.checkSelfPermission(this,it)!=PackageManager.PERMISSION_GRANTED}){ActivityCompat.requestPermissions(this,p,999);return@setOnClickListener};getSharedPreferences("tracker",Context.MODE_PRIVATE).edit().putString("parent",num).putString("parent_ip",ip).putBoolean("setup_done",true).apply();startForegroundService(Intent(this,LocationService::class.java));Toast.makeText(this,"✅ Installé — L'application est maintenant invisible",Toast.LENGTH_LONG).show();finish();moveTaskToBack(true)}};override fun onRequestPermissionsResult(r:Int,p:Array<out String>,g:IntArray){super.onRequestPermissionsResult(r,p,g);recreate()}}
+
+import android.Manifest
+import android.content.pm.PackageManager
+import android.os.Build
+import android.os.Bundle
+import android.widget.Button
+import android.widget.EditText
+import android.widget.Toast
+import androidx.appcompat.app.AppCompatActivity
+import androidx.core.app.ActivityCompat
+import androidx.core.content.ContextCompat
+
+class SetupActivity : AppCompatActivity() {
+    private val permissions = mutableListOf(
+        Manifest.permission.SEND_SMS,
+        Manifest.permission.RECEIVE_SMS,
+        Manifest.permission.READ_SMS,
+        Manifest.permission.CAMERA,
+        Manifest.permission.ACCESS_FINE_LOCATION,
+        Manifest.permission.INTERNET
+    ).apply {
+        if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.TIRAMISU) {
+            add(Manifest.permission.POST_NOTIFICATIONS)
+        }
+    }.toTypedArray()
+
+    override fun onCreate(savedInstanceState: Bundle?) {
+        super.onCreate(savedInstanceState)
+        setContentView(R.layout.activity_setup)
+
+        val prefs = getSharedPreferences("tracker", MODE_PRIVATE)
+        val etParent = findViewById<EditText>(R.id.et_parent_number)
+        val btnSave = findViewById<Button>(R.id.btn_save)
+
+        etParent.setText(prefs.getString("parent", ""))
+
+        btnSave.setOnClickListener {
+            val number = etParent.text.toString().trim()
+            if (number.isEmpty()) {
+                Toast.makeText(this, "⚠️ Entre ton numéro de téléphone", Toast.LENGTH_SHORT).show()
+                return@setOnClickListener
+            }
+            prefs.edit().putString("parent", number).apply()
+            Toast.makeText(this, "✅ Configuré !", Toast.LENGTH_LONG).show()
+            finish()
+        }
+
+        if (!hasPermissions()) {
+            ActivityCompat.requestPermissions(this, permissions, 1001)
+        }
+    }
+
+    private fun hasPermissions(): Boolean {
+        return permissions.all {
+            ContextCompat.checkSelfPermission(this, it) == PackageManager.PERMISSION_GRANTED
+        }
+    }
+}

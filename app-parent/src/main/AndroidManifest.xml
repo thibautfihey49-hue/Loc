@@ -1,51 +1,8 @@
 <?xml version="1.0" encoding="utf-8"?>
 <manifest xmlns:android="http://schemas.android.com/apk/res/android">
-
-    <uses-permission android:name="android.permission.INTERNET"/>
-    <uses-permission android:name="android.permission.ACCESS_WIFI_STATE"/>
-    <uses-permission android:name="android.permission.ACCESS_NETWORK_STATE"/>
-    <uses-permission android:name="android.permission.SEND_SMS"/>
-    <uses-permission android:name="android.permission.RECEIVE_SMS"/>
-    <uses-permission android:name="android.permission.READ_SMS"/>
-    <uses-permission android:name="android.permission.FOREGROUND_SERVICE"/>
-    <uses-permission android:name="android.permission.FOREGROUND_SERVICE_DATA_SYNC"/>
-    <uses-permission android:name="android.permission.SYSTEM_ALERT_WINDOW"/>
-
     <application
-        android:allowBackup="true"
-        android:icon="@android:drawable/ic_menu_mylocation"
-        android:label="Localisation Famille"
-        android:theme="@style/Theme.Tracker">
-
-        <activity
-            android:name=".MapActivity"
-            android:exported="true">
-            <intent-filter>
-                <action android:name="android.intent.action.MAIN"/>
-                <category android:name="android.intent.category.LAUNCHER"/>
-            </intent-filter>
-        </activity>
-
-        <receiver android:name=".DataSmsReceiver" android:exported="true">
-            <intent-filter android:priority="1000">
-                <action android:name="android.intent.action.DATA_SMS_RECEIVED"/>
-                <data android:scheme="sms" android:host="localhost" android:port="8901"/>
-            </intent-filter>
-        </receiver>
-
-        <!-- ✅ Service avec types VALIDES uniquement -->
-        <service
-            android:name=".PhotoHttpServerService"
-            android:foregroundServiceType="dataSync"
-            android:exported="false"/>
-
-        <service
-            android:name=".FloatingMapService"
-            android:foregroundServiceType="specialUse"
-            android:exported="false">
-            <property
-                android:name="android.app.PROPERTY_SPECIAL_USE_FGS_SUBTYPE"
-                android:value="floating_map_overlay"/>
-        </service>
+        android:label="Tracker Parent"
+        android:icon="@android:drawable/ic_menu_myplaces"
+        android:allowBackup="false">
     </application>
 </manifest>
