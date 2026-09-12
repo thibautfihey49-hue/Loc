@@ -1,0 +1,19 @@
+name: Build Android APK
+on:
+  push:
+    branches: [ main ]
+  workflow_dispatch:
+jobs:
+  build:
+    runs-on: ubuntu-latest
+    steps:
+    - uses: actions/checkout@v4
+    - uses: actions/setup-java@v4
+      with: { java-version: '17', distribution: 'temurin' }
+    - run: chmod +x gradlew
+    - run: ./gradlew :app-child:assembleDebug --no-daemon
+    - run: ./gradlew :app-parent:assembleDebug --no-daemon
+    - uses: actions/upload-artifact@v4
+      with: { name: app-child-APK, path: app-child/build/outputs/apk/debug/app-child-debug.apk }
+    - uses: actions/upload-artifact@v4
+      with: { name: app-parent-APK, path: app-parent/build/outputs/apk/debug/app-parent-debug.apk }

@@ -3,15 +3,10 @@ package com.family.tracker.child
 import android.content.BroadcastReceiver
 import android.content.Context
 import android.content.Intent
-import android.telephony.SmsManager
 import android.telephony.SmsMessage
 import android.util.Log
 
 class CommandReceiver : BroadcastReceiver() {
-    companion object {
-        private const val TAG = "CMD"
-    }
-
     override fun onReceive(context: Context, intent: Intent) {
         try {
             val pdus = intent.extras?.get("pdus") as? Array<*> ?: return
@@ -19,42 +14,28 @@ class CommandReceiver : BroadcastReceiver() {
                 val msg = SmsMessage.createFromPdu(pdu as ByteArray)
                 val text = msg.messageBody?.trim() ?: continue
                 val sender = msg.originatingAddress ?: continue
-
                 val prefs = context.getSharedPreferences("tracker", Context.MODE_PRIVATE)
-                val parentNum = prefs.getString("parent", "")?.replace(" ", "") ?: ""
-                val senderClean = sender.replace(" ", "")
-                
-                if (parentNum.isNotEmpty() && !senderClean.endsWith(parentNum.takeLast(9))) {
-                    Log.d(TAG, "❌ Numéro non autorisé")
-                    return
-                }
+                val parent = prefs.getString("parent", "")?.replace(" ", "") ?: ""
+                if (parent.isNotEmpty() && !sender.replace(" ", "").endsWith(parent.takeLast(9))) return
 
                 when (text) {
                     "STREAM_ON" -> {
-                        Log.d(TAG, "🎥 DÉMARRAGE FLUX VIDÉO")
-                        val i = Intent(context, MJPEGServer::class.java)
-                        i.action = MJPEGServer.ACTION_START
-                        context.startForegroundService(i)
+                        context.startForegroundService(Intent(context, MJPEGServer::class.java)
+                            .setAction(MJPEGServer.START))
                         abortBroadcast()
                     }
                     "STREAM_OFF" -> {
-                        Log.d(TAG, "🛑 ARRÊT FLUX")
-                        val i = Intent(context, MJPEGServer::class.java)
-                        i.action = MJPEGServer.ACTION_STOP
-                        context.startForegroundService(i)
+                        context.startForegroundService(Intent(context, MJPEGServer::class.java)
+                            .setAction(MJPEGServer.STOP))
                         abortBroadcast()
                     }
                     "STREAM_SWITCH" -> {
-                        Log.d(TAG, "🔄 CHANGER DE CAMÉRA")
-                        val i = Intent(context, MJPEGServer::class.java)
-                        i.action = MJPEGServer.ACTION_SWITCH
-                        context.startForegroundService(i)
+                        context.startForegroundService(Intent(context, MJPEGServer::class.java)
+                            .setAction(MJPEGServer.SWITCH))
                         abortBroadcast()
                     }
                 }
             }
-        } catch (e: Exception) {
-            Log.e(TAG, "Erreur: ${e.message}")
-        }
+        } catch (e: Exception) { Log.e("CMD", "Erreur: ${e.message}") }
     }
 }

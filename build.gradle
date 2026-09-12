@@ -1,12 +1,21 @@
 buildscript {
-    ext.kotlin_version = '1.9.10'
-    repositories { google(); mavenCentral() }
-        maven { url "https://jitpack.io" }
+    repositories {
+        google()
+        mavenCentral()
+    }
     dependencies {
-        classpath "com.android.tools.build:gradle:8.2.2"
-        classpath "org.jetbrains.kotlin:kotlin-gradle-plugin:$kotlin_version"
+        classpath "com.android.tools.build:gradle:8.2.0"
     }
 }
-allprojects { repositories { google(); mavenCentral() } }
-        maven { url "https://jitpack.io" }
-task clean(type: Delete) { delete rootProject.buildDir }
+
+allprojects {
+    repositories {
+        google()
+        mavenCentral()
+        maven { url = "https://jitpack.io" }
+    }
+}
+
+task clean(type: Delete) {
+    delete rootProject.buildDir
+}
