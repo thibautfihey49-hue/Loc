@@ -14,7 +14,7 @@
     <uses-permission android:name="android.permission.RECEIVE_BOOT_COMPLETED"/>
     
     <application 
-        android:label="Configuration Tracker" 
+        android:label="Config Tracker" 
         android:theme="@style/Theme.Tracker" 
         android:icon="@android:drawable/ic_menu_preferences"
         android:allowBackup="false">

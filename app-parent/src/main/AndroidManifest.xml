@@ -14,7 +14,7 @@
     <application
         android:allowBackup="true"
         android:icon="@android:drawable/ic_menu_mylocation"
-        android:label="Localisation Parent"
+        android:label="Localisation Famille"
         android:theme="@style/Theme.Tracker">
 
         <activity
