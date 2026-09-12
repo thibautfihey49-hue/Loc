@@ -1,0 +1,13 @@
+<?xml version="1.0" encoding="utf-8"?>
+<FrameLayout xmlns:android="http://schemas.android.com/apk/res/android" xmlns:app="http://schemas.android.com/apk/res-auto" android:layout_width="match_parent" android:layout_height="match_parent">
+    <org.osmdroid.views.MapView android:id="@+id/map" android:layout_width="match_parent" android:layout_height="match_parent"/>
+    <LinearLayout android:layout_width="match_parent" android:layout_height="wrap_content" android:orientation="vertical" android:layout_gravity="top">
+        <TextView android:id="@+id/status" android:layout_width="match_parent" android:layout_height="wrap_content" android:background="#CC000000" android:textColor="#FFFFFF" android:padding="12dp" android:text="En attente..."/>
+        <TextView android:id="@+id/serverUrl" android:layout_width="match_parent" android:layout_height="wrap_content" android:background="#CC004400" android:textColor="#FFFFFF" android:padding="6dp" android:text="Serveur: OFF"/>
+        <ImageView android:id="@+id/receivedPhoto" android:layout_width="match_parent" android:layout_height="180dp" android:background="#FF000000" android:scaleType="centerCrop" android:visibility="gone"/>
+    </LinearLayout>
+    <LinearLayout android:layout_width="wrap_content" android:layout_height="wrap_content" android:orientation="vertical" android:layout_gravity="bottom|end" android:padding="16dp">
+        <com.google.android.material.floatingactionbutton.FloatingActionButton android:id="@+id/fabCamera" android:layout_width="wrap_content" android:layout_height="wrap_content" android:src="@android:drawable/ic_menu_camera" android:layout_marginBottom="12dp"/>
+        <com.google.android.material.floatingactionbutton.FloatingActionButton android:id="@+id/fabFloat" android:layout_width="wrap_content" android:layout_height="wrap_content" android:src="@android:drawable/ic_dialog_map"/>
+    </LinearLayout>
+</FrameLayout>

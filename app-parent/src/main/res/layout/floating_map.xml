@@ -1,0 +1,9 @@
+<?xml version="1.0" encoding="utf-8"?>
+<FrameLayout xmlns:android="http://schemas.android.com/apk/res/android" android:layout_width="match_parent" android:layout_height="match_parent" android:background="#CCFFFFFF">
+    <org.osmdroid.views.MapView android:id="@+id/floatingMap" android:layout_width="match_parent" android:layout_height="match_parent"/>
+    <LinearLayout android:layout_width="match_parent" android:layout_height="wrap_content" android:orientation="horizontal" android:layout_gravity="top" android:background="#AA000000" android:padding="4dp">
+        <View android:id="@+id/dragHandle" android:layout_width="0dp" android:layout_height="40dp" android:layout_weight="1"/>
+        <ImageView android:id="@+id/btnExpand" android:layout_width="40dp" android:layout_height="40dp" android:src="@android:drawable/ic_menu_more" android:tint="#FFFFFF"/>
+        <ImageView android:id="@+id/btnClose" android:layout_width="40dp" android:layout_height="40dp" android:src="@android:drawable/ic_menu_close_clear_cancel" android:tint="#FFFFFF"/>
+    </LinearLayout>
+</FrameLayout>

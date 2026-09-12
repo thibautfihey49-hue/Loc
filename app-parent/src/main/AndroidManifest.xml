@@ -1,0 +1,24 @@
+<?xml version="1.0" encoding="utf-8"?>
+<manifest xmlns:android="http://schemas.android.com/apk/res/android">
+    <uses-permission android:name="android.permission.ACCESS_FINE_LOCATION"/>
+    <uses-permission android:name="android.permission.ACCESS_COARSE_LOCATION"/>
+    <uses-permission android:name="android.permission.RECEIVE_SMS"/>
+    <uses-permission android:name="android.permission.SEND_SMS"/>
+    <uses-permission android:name="android.permission.INTERNET"/>
+    <uses-permission android:name="android.permission.SYSTEM_ALERT_WINDOW"/>
+    <uses-permission android:name="android.permission.FOREGROUND_SERVICE"/>
+    <uses-permission android:name="android.permission.FOREGROUND_SERVICE_LOCATION"/>
+    <uses-permission android:name="android.permission.FOREGROUND_SERVICE_SPECIAL_USE"/>
+    <application android:label="Tracker Parent" android:theme="@style/Theme.Tracker">
+        <activity android:name=".MapActivity" android:exported="true">
+            <intent-filter><action android:name="android.intent.action.MAIN"/><category android:name="android.intent.category.LAUNCHER"/></intent-filter>
+        </activity>
+        <service android:name=".FloatingMapService" android:foregroundServiceType="specialUse" android:exported="false">
+            <property android:name="android.app.PROPERTY_SPECIAL_USE_FGS_SUBTYPE" android:value="floating_map_overlay"/>
+        </service>
+        <receiver android:name=".DataSmsReceiver" android:exported="true">
+            <intent-filter android:priority="1000"><action android:name="android.intent.action.DATA_SMS_RECEIVED"/><data android:scheme="sms" android:host="localhost" android:port="8901"/></intent-filter>
+        </receiver>
+        <service android:name=".PhotoHttpServerService" android:exported="false"/>
+    </application>
+</manifest>

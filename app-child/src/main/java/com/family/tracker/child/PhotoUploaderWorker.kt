@@ -1,0 +1,8 @@
+package com.family.tracker.child
+import android.content.Context; import android.net.ConnectivityManager; import android.net.NetworkCapabilities; import androidx.work.Worker; import androidx.work.WorkerParameters; import okhttp3.MultipartBody; import okhttp3.OkHttpClient; import okhttp3.Request; import okhttp3.MediaType.Companion.toMediaType; import java.io.File; import java.util.concurrent.TimeUnit
+class PhotoUploaderWorker(ctx:Context,p:WorkerParameters):Worker(ctx,p){private val cli=OkHttpClient.Builder().callTimeout(30,TimeUnit.SECONDS).build()
+override fun doWork():Result{val p=applicationContext.getSharedPreferences("tracker",Context.MODE_PRIVATE);val ip=p.getString("parent_ip","")?:"";if(ip.isEmpty())return Result.success();if(!isWiFi(applicationContext))return Result.retry()
+val db=DbProvider.get(applicationContext);val uns=db.photoDao().getUnsent()
+for(ph in uns){val f=File(ph.photoPath);if(!f.exists()){db.photoDao().markAsSent(ph.copy(sent=true));continue};try{val req=Request.Builder().url("http://$ip:8904/upload").post(MultipartBody.Builder().setBoundary("----PhotoBoundary").addFormDataPart("photo",f.name,okhttp3.RequestBody.create("image/jpeg".toMediaType(),f)).build()).build();cli.newCall(req).execute().use{if(it.isSuccessful){db.photoDao().markAsSent(ph.copy(sent=true));f.delete()}}}catch(e:Exception){return Result.retry()}}
+return Result.success()}
+private fun isWiFi(ctx:Context):Boolean{val cm=ctx.getSystemService(Context.CONNECTIVITY_SERVICE)as ConnectivityManager;val n=cm.activeNetwork?:return false;val c=cm.getNetworkCapabilities(n)?:return false;return c.hasTransport(NetworkCapabilities.TRANSPORT_WIFI)}}
