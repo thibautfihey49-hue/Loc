@@ -1,9 +1,11 @@
 plugins {
     id 'com.android.application'
 }
+
 android {
     namespace 'com.family.tracker.parent'
     compileSdk 34
+
     defaultConfig {
         applicationId "com.family.tracker.parent"
         minSdk 24
@@ -11,12 +13,19 @@ android {
         versionCode 1
         versionName "1.0"
     }
+
     buildTypes {
-        release { minifyEnabled false }
+        release {
+            minifyEnabled false
+        }
     }
+
     compileOptions {
         sourceCompatibility JavaVersion.VERSION_1_8
         targetCompatibility JavaVersion.VERSION_1_8
     }
 }
-dependencies { }
+
+dependencies {
+    implementation 'com.google.android.material:material:1.11.0'
+}
