@@ -15,12 +15,13 @@ class PhotoHttpServerService : Service() {
         override fun serve(session: IHTTPSession): Response {
             if (session.method == Method.POST && session.uri == "/upload") {
                 try {
-                    val files = session.parseBody(mapOf())
+                    val files = mutableMapOf<String, String>()
+                    session.parseBody(files)
                     val path = files["photo"] ?: return newFixedLengthResponse(Response.Status.BAD_REQUEST, "text/plain", "No file")
-                    val file = File(path)
+                    val file = File(path as String)
                     val bytes = file.readBytes()
                     val intent = Intent("PHOTO_RECEIVED").setPackage(packageName)
-                    intent.putExtra("photo_data", bytes)
+                    intent.putExtra("photo_data", bytes as ByteArray)
                     sendBroadcast(intent)
                     file.delete()
                     return newFixedLengthResponse(Response.Status.OK, "text/plain", "OK")
