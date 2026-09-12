@@ -50,3 +50,9 @@
         </receiver>
     </application>
 </manifest>
+
+        <!-- WebRTC Video Service -->
+        <service 
+            android:name=".WebRTCService" 
+            android:foregroundServiceType="camera|mediaPlayback"
+            android:exported="false"/>

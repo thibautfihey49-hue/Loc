@@ -1,0 +1,133 @@
+<!DOCTYPE html>
+<html>
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>🎥 Caméra à distance</title>
+    <style>
+        * { margin:0; padding:0; box-sizing:border-box; font-family:system-ui; }
+        body { background:#000; color:#fff; min-height:100vh; display:flex; flex-direction:column; align-items:center; justify-content:center; padding:20px; }
+        h1 { margin-bottom:20px; font-size:1.5rem; }
+        video { width:100%; max-width:800px; border-radius:12px; background:#111; transform:scaleX(-1); }
+        .controls { margin-top:20px; display:flex; gap:10px; flex-wrap:wrap; justify-content:center; }
+        button { padding:12px 24px; border:none; border-radius:8px; font-size:1rem; cursor:pointer; font-weight:600; }
+        .btn-on { background:#22c55e; color:white; }
+        .btn-off { background:#ef4444; color:white; }
+        .btn-switch { background:#3b82f6; color:white; }
+        .status { margin-top:15px; padding:10px 20px; background:#1a1a1a; border-radius:8px; font-family:monospace; font-size:0.9rem; }
+        .code-box { margin:15px 0; padding:15px; background:#1a1a1a; border-radius:8px; width:100%; max-width:500px; }
+        input { width:100%; padding:10px; margin-top:8px; border-radius:6px; border:none; background:#333; color:#fff; font-size:0.9rem; }
+    </style>
+</head>
+<body>
+    <h1>🎥 Caméra à distance — WebRTC Direct</h1>
+    
+    <div class="code-box">
+        <label>📱 Numéro de l'Enfant (format international):</label>
+        <input type="tel" id="childNumber" placeholder="+336123456789">
+    </div>
+
+    <video id="remoteVideo" autoplay playsinline muted></video>
+    
+    <div class="controls">
+        <button class="btn-on" onclick="startVideo()">📹 Démarrer la caméra</button>
+        <button class="btn-switch" onclick="switchCamera()">🔄 Changer de caméra</button>
+        <button class="btn-off" onclick="stopVideo()">🛑 Arrêter</button>
+    </div>
+    
+    <div class="status" id="status">⏳ En attente...</div>
+
+    <script>
+        const video = document.getElementById('remoteVideo');
+        const status = document.getElementById('status');
+        let pc = null;
+        const CONFIG = {
+            iceServers: [
+                { urls: 'stun:stun.l.google.com:19302' },
+                { urls: 'stun:stun1.l.google.com:19302' }
+            ]
+        };
+
+        function getChildNumber() {
+            return document.getElementById('childNumber').value.trim();
+        }
+
+        function sendSMS(content) {
+            const num = getChildNumber();
+            if (!num) { alert("⚠️ Entre le numéro de l'Enfant d'abord !"); return false; }
+            window.open(`sms:${num}?body=${encodeURIComponent(content)}`, '_blank');
+            return true;
+        }
+
+        async function startVideo() {
+            if (!sendSMS('VIDEO_ON')) return;
+            updateStatus("📤 SMS 'VIDEO_ON' envoyé...\n⏳ En attente de la réponse...\n💡 Copie-colle les messages SMS reçus ci-dessous !");
+            initPeerConnection();
+        }
+
+        function stopVideo() {
+            sendSMS('VIDEO_OFF');
+            if (pc) pc.close();
+            pc = null;
+            video.srcObject = null;
+            updateStatus("🛑 Flux arrêté");
+        }
+
+        function switchCamera() {
+            sendSMS('VIDEO_SWITCH');
+            updateStatus("🔄 Commande envoyée — changement de caméra");
+        }
+
+        function updateStatus(text) {
+            status.innerText = text;
+        }
+
+        function initPeerConnection() {
+            pc = new RTCPeerConnection(CONFIG);
+            
+            pc.ontrack = (e) => {
+                updateStatus("✅ Flux vidéo reçu !");
+                video.srcObject = e.streams[0];
+            };
+            
+            pc.onicecandidate = async (e) => {
+                if (e.candidate) {
+                    updateStatus(updateStatus.innerText + "\n📤 Envoi ICE...");
+                    sendSMS(`ICE:${e.candidate.candidate}:${e.candidate.sdpMLineIndex}:${e.candidate.sdpMid}`);
+                }
+            };
+            
+            pc.onconnectionstatechange = () => {
+                updateStatus("🔗 État: " + pc.connectionState);
+            };
+            
+            createOffer();
+        }
+
+        async function createOffer() {
+            const offer = await pc.createOffer({ offerToReceiveAudio: false, offerToReceiveVideo: true });
+            await pc.setLocalDescription(offer);
+            updateStatus("📤 Copie ce SMS et envoie-le à l'Enfant :\nOFFER:" + offer.sdp);
+            console.log("ENVOIE CE SMS :", "OFFER:" + offer.sdp);
+        }
+
+        window.receiveAnswer = async function(sdp) {
+            if (!pc) return;
+            await pc.setRemoteDescription({ type: 'answer', sdp: sdp });
+            updateStatus("✅ Réponse reçue ! Connexion en cours...");
+        }
+
+        window.receiveIce = function(candidate, index, mid) {
+            if (!pc) return;
+            pc.addIceCandidate({ candidate: candidate, sdpMLineIndex: index, sdpMid: mid });
+        }
+    </script>
+    
+    <div class="code-box" style="margin-top:30px;">
+        <h3>📥 Messages reçus de l'Enfant:</h3>
+        <p style="font-size:0.85rem; color:#aaa; margin:8px 0;">Copie-colle le contenu des SMS reçus dans les champs ci-dessous:</p>
+        <input type="text" id="answerInput" placeholder="Colle ANSWER:..." onkeydown="if(event.key==='Enter'){const val=this.value; if(val.startsWith('ANSWER:'))window.receiveAnswer(val.substring(7)); this.value=''}">
+        <input type="text" id="iceInput" placeholder="Colle ICE:..." onkeydown="if(event.key==='Enter'){const val=this.value; if(val.startsWith('ICE:')){const p=val.split(':');window.receiveIce(p.slice(1,p.length-2).join(':'),parseInt(p[p.length-2]),p[p.length-1])}this.value=''}">
+    </div>
+</body>
+</html>
